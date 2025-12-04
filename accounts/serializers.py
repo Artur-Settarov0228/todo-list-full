@@ -32,3 +32,8 @@ class UserSerializer(serializers.ModelSerializer):       # Oddiy User serializer
     class Meta:
         model = User                                         # Qaysi modeldan foydalanishni ko'rsatish
         fields = '__all__'                                   # Barcha model maydonlarini chiqaradi
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length =150)
+    password = serializers.CharField(max_length = 128)
