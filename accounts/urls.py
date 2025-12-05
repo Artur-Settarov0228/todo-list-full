@@ -1,8 +1,8 @@
 from django.urls import path
-from .views import RegisterView, LoginView
+from .views import RegisterView, LoginView,  LogoutView  
 
 urlpatterns = [
-    path('auth/register/', RegisterView.as_view()),
-    path('auth/login/', LoginView.as_view()),
-    
+    path('auth/register/', RegisterView.as_view()),  # ✅ Foydalanuvchini ro‘yxatdan o‘tkazish endpoint
+    path('auth/login/', LoginView.as_view()),        # ✅ Foydalanuvchi login qiladigan endpoint
+    path('auth/logout/', LogoutView.as_view()),      # ✅ Foydalanuvchi tokenini o‘chirib logout qiladigan endpoint, headerda Authorization: Token <token> bo‘lishi kerak
 ]
