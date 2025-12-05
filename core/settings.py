@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%#o^5g5a(#2psbvv3ev1=+jpuzk7tj^(qj!2dy$n8yp5)=gkm^'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 
     #apps
     'accounts.apps.AccountsConfig',
+    'todo.apps.TodoConfig'
     'rest_framework',
     'rest_framework.authtoken',
     
