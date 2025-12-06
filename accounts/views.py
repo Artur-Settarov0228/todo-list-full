@@ -1,3 +1,5 @@
+from django.contrib.auth.hashers import check_password
+
 from django.contrib.auth import authenticate                     # Django funksiyasi: username va password orqali foydalanuvchini tekshiradi
 from rest_framework.views import APIView                          # DRF class-based view yaratish uchun
 from rest_framework.request import Request                        # DRF request obyekti
@@ -6,7 +8,7 @@ from rest_framework import status                                 # HTTP status 
 from rest_framework.authtoken.models import Token                 # DRF token modeli
 from rest_framework.authentication import TokenAuthentication     # DRF token bilan autentifikatsiya
 
-from .serializers import RegisterSerializer, UserSerializer , LoginSerializer, Profileserializer # Serializerlar
+from .serializers import RegisterSerializer, UserSerializer , LoginSerializer, Profileserializer, ChangePasswordSerializer# Serializerlar
 
 class RegisterView(APIView):                      # User ro‘yxatdan o‘tish viewsi
     def post(self, request: Request) -> Response: # POST metodi
@@ -47,25 +49,36 @@ class LogoutView(APIView):                           # Foydalanuvchi logout qila
         request.user.auth_token.delete()             # Foydalanuvchining tokenini o‘chiradi
         return Response(status=status.HTTP_204_NO_CONTENT)  
         # 204 — muvaffaqiyatli logout, body yo‘q
+class ProfileView(APIView):  # ProfileView – foydalanuvchi profilini ko‘rsatish va yangilash uchun APIView
+    authentication_classes = [TokenAuthentication]  # Foydalanuvchi token orqali tizimga kirgan bo‘lishi kerak
 
-class ProfileView(APIView):
-    authentication_classes = [TokenAuthentication]
-
-    def post(self, request: Request) -> Response:
-
-        user = request.user
-
-        serializer = UserSerializer(user)
-
-        return Response(serializer.data)
+    def post(self, request: Request) -> Response:  # POST so‘rovi – foydalanuvchi ma’lumotlarini olish
+        user = request.user  # Token orqali tizimga kirgan foydalanuvchini oladi
+        serializer = UserSerializer(user)  # Foydalanuvchi ma’lumotlarini JSON shakliga o‘tkazadi
+        return Response(serializer.data)  # Seriyalizatsiya qilingan ma’lumotlarni qaytaradi
     
-    def put(self, request: Request) -> Response:
-        user = request.user
-
-        serializer = Profileserializer(data=request.data, partal=True)
-        if serializer.is_valid(raise_exception=True):
-            update_user = serializer.update(user , serializer.validated_data)
+    def put(self, request: Request) -> Response:  # PUT so‘rovi – foydalanuvchi profilini yangilash
+        user = request.user  # Token orqali foydalanuvchi obyektini oladi
+        serializer = Profileserializer(data=request.data, partal=True)  # Ma’lumotlarni serializer orqali tekshiradi
+        if serializer.is_valid(raise_exception=True):  # Agar ma’lumotlar to‘g‘ri bo‘lsa davom etadi
+            update_user = serializer.update(user , serializer.validated_data)  # Foydalanuvchi ob’ektini yangilaydi
         
-        serializer = UserSerializer(update_user)
-        return Response(serializer.data)
-       
+        serializer = UserSerializer(update_user)  # Yangilangan ma’lumotlarni JSON shakliga o‘tkazadi
+        return Response(serializer.data)  # Yangilangan ma’lumotlarni qaytaradi
+
+class PasswordChangeView(APIView):  # PasswordChangeView – foydalanuvchi parolini o‘zgartirish
+    authentication_classes = [TokenAuthentication]  # Foydalanuvchi token orqali tizimga kirgan bo‘lishi kerak
+
+    def post(self, request:Request) -> Response:  # POST so‘rovi – parolni o‘zgartirish
+        serializer = ChangePasswordSerializer(data = request.data)  # Kelgan ma’lumotlarni serializer orqali tekshiradi
+
+        if serializer.is_valid(raise_exception=True):  # Agar ma’lumotlar to‘g‘ri bo‘lsa davom etadi
+            user = request.user  # Token orqali foydalanuvchi ob’ektini oladi
+
+            if not check_password(serializer.validated_data['password'], user.password):  # Hozirgi parolni tekshiradi
+                return Response('parol xato qaytadan kiriting!', status=status.HTTP_400_BAD_REQUEST)  # Xato xabar qaytaradi
+            
+            user.set_password(serializer.validated_data['new_password'])  # Yangi parolni hash qilib saqlaydi
+            user.save()  # Foydalanuvchi ob’ektini bazaga saqlaydi
+            
+            return Response("parol o'zgardi ")  # Muvaffaqiyatli xabar qaytaradi

@@ -42,10 +42,21 @@ class LoginSerializer(serializers.Serializer):
 class Profileserializer(serializers.Serializer):
     class Meta:
         model = User
-        exclude = "password"                            # Parol maydonini chiqarishdan chiqarib tashlaymiz
+        exclude = ["password",'role', 'groups', 'user_permissions', 'is_staff', 'is_superuser']                            # Parol maydonini chiqarishdan chiqarib tashlaymiz
         extra_kwargs = {
             'username' :{
                 "required": False
             }
         }
+
+class ChangePasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(max_length=128)
+    new_password = serializers.CharField(max_length=128)
+    confirm = serializers.CharField(max_length=128)
     
+    def validate(self, attrs):
+        if attrs['new_password'] != attrs['confirm']:
+            raise serializers.ValidationError("yangi parol bilan confirm parol teng emas qaytdan urinib kuring")
+        
+        return super().validate(attrs)
+
