@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RegisterView, LoginView,  LogoutView, ProfileView, PasswordChangeView
+from .views import RegisterView, LoginView,  LogoutView, ProfileView, PasswordChangeView, AdminPanelView,ManagmentPanelView, Staffzone
 
 urlpatterns = [
     path('auth/register/', RegisterView.as_view()),  # ✅ Foydalanuvchini ro‘yxatdan o‘tkazish endpoint
@@ -7,5 +7,11 @@ urlpatterns = [
     path('auth/logout/', LogoutView.as_view()),      # ✅ Foydalanuvchi tokenini o‘chirib logout qiladigan endpoint, headerda Authorization: Token <token> bo‘lishi kerak
     path('auth/profile/', ProfileView.as_view()),
     path('auth/change-password/', PasswordChangeView.as_view()),
+
+    path('auth/admin-panel/', AdminPanelView.as_view()),
+    path('auth/management/', ManagmentPanelView.as_view()),
+    path('auth/staff-zone/', Staffzone.as_view()),
+
+
 
 ]

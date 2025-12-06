@@ -7,6 +7,7 @@ from rest_framework.response import Response                      # DRF JSON jav
 from rest_framework import status                                 # HTTP status kodlari
 from rest_framework.authtoken.models import Token                 # DRF token modeli
 from rest_framework.authentication import TokenAuthentication     # DRF token bilan autentifikatsiya
+from .permissions import Is_Admin, Is_User, Is_Manager, IsStaff
 
 from .serializers import RegisterSerializer, UserSerializer , LoginSerializer, Profileserializer, ChangePasswordSerializer# Serializerlar
 
@@ -81,4 +82,37 @@ class PasswordChangeView(APIView):  # PasswordChangeView – foydalanuvchi parol
             user.set_password(serializer.validated_data['new_password'])  # Yangi parolni hash qilib saqlaydi
             user.save()  # Foydalanuvchi ob’ektini bazaga saqlaydi
             
-            return Response("parol o'zgardi ")  # Muvaffaqiyatli xabar qaytaradi
+            return Response("parol o'zgardi ", status=status.HTTP_204_NO_CONTENT)  # Muvaffaqiyatli xabar qaytaradi
+
+
+class AdminPanelView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [Is_Admin]
+
+    def get(self, request: Request) -> Response:
+        return Response('xush kelibsiz adminlikga', status=status.HTTP_200_OK)
+    
+class ManagmentPanelView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [Is_Manager]
+
+    def get(self, requestz: Request) -> Response:
+        return Response('xush keibsiz managerlikga ')
+
+class StaffzoneUserPanelView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [Is_User]
+
+    def get(self, request:Request) -> Response:
+        return Response("xush kelibsiz")  
+
+class Staffzone(APIView):
+    authentication_classes = [TokenAuthentication]
+
+    permission_classes = [IsStaff]
+    def get(self, request: Request) -> Response:
+        
+        return Response(' Xush kelibsiz jamoga tabriklaymiz endi birga ishlaymiz ')
+     
+
+              
