@@ -37,3 +37,15 @@ class UserSerializer(serializers.ModelSerializer):       # Oddiy User serializer
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)    # Login uchun username maydoni
     password = serializers.CharField(max_length=128)    # Login uchun password maydoni
+
+
+class Profileserializer(serializers.Serializer):
+    class Meta:
+        model = User
+        exclude = "password"                            # Parol maydonini chiqarishdan chiqarib tashlaymiz
+        extra_kwargs = {
+            'username' :{
+                "required": False
+            }
+        }
+        

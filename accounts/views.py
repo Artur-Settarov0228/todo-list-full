@@ -6,7 +6,7 @@ from rest_framework import status                                 # HTTP status 
 from rest_framework.authtoken.models import Token                 # DRF token modeli
 from rest_framework.authentication import TokenAuthentication     # DRF token bilan autentifikatsiya
 
-from .serializers import RegisterSerializer, UserSerializer , LoginSerializer  # Serializerlar
+from .serializers import RegisterSerializer, UserSerializer , LoginSerializer, Profileserializer # Serializerlar
 
 class RegisterView(APIView):                      # User ro‘yxatdan o‘tish viewsi
     def post(self, request: Request) -> Response: # POST metodi
@@ -47,3 +47,25 @@ class LogoutView(APIView):                           # Foydalanuvchi logout qila
         request.user.auth_token.delete()             # Foydalanuvchining tokenini o‘chiradi
         return Response(status=status.HTTP_204_NO_CONTENT)  
         # 204 — muvaffaqiyatli logout, body yo‘q
+
+class ProfileView(APIView):
+    authentication_classes = [TokenAuthentication]
+
+    def post(self, request: Request) -> Response:
+
+        user = request.user
+
+        serializer = UserSerializer(user)
+
+        return Response(serializer.data)
+    
+    def put(self, request: Request) -> Response:
+        user = request.user
+
+        serializer = Profileserializer(data=request.data, partal=True)
+        if serializer.is_valid(raise_exception=True):
+            update_user = serializer.update(user , serializer.validated_data)
+        
+        serializer = UserSerializer(update_user)
+        return Response(serializer.data)
+       
