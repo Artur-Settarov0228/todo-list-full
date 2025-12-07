@@ -43,7 +43,10 @@ INSTALLED_APPS = [
 
     #apps
     'accounts.apps.AccountsConfig',
-    #'todo.apps.TodoConfig'
+    'todo.apps.TodoConfig',
+
+
+    
     'rest_framework',
     'rest_framework.authtoken',
     
